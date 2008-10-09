@@ -13,7 +13,7 @@ Dependencies: AceLibrary, AceEvent-2.0, AceHook-2.1, AceOO-2.0, AceLocale-2.2, D
 -- VISIT: http://wowace.com/wiki/WhoLib-1.0
 
 local MAJOR_VERSION = 'WhoLib-1.0'
-local MINOR_VERSION = '$Revision$'
+local MINOR_VERSION = 90000 + tonumber(('$Revision$'):match("(%d+)"))
 
 if not AceLibrary then error(MAJOR_VERSION .. ' requires AceLibrary') end
 if not AceLibrary:IsNewVersion(MAJOR_VERSION, MINOR_VERSION) then return end
