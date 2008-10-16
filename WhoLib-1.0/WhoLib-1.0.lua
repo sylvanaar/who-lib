@@ -448,9 +448,9 @@ function lib:WhoFrameEditBox_OnEnterPressed()
 	self:GuiWho(WhoFrameEditBox:GetText())
 end
 
-function lib:FriendsFrame_OnEvent()
+function lib:FriendsFrame_OnEvent(this, event, ...)
 	if(not (event == 'WHO_LIST_UPDATE' and self.Quiet))then
-		self.hooks.FriendsFrame_OnEvent(event)
+		self.hooks.FriendsFrame_OnEvent(this, event, ...)
 	end
 end
 
