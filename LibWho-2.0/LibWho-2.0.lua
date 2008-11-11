@@ -12,8 +12,10 @@ end -- if
 --- check version
 ---
 
+assert(LibStub, "LibWho-2.0 requires LibStub")
+
 local major_version = 'LibWho-2.0'
-local minor_version = tonumber("@project-revision@")
+local minor_version = tonumber("@project-revision@") or tonumber(("$Revision: 68 $"):match("(%d+)"))
 
 local lib = LibStub:NewLibrary(major_version, minor_version)
 
