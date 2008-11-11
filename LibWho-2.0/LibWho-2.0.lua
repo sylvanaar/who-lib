@@ -13,7 +13,7 @@ end -- if
 ---
 
 local major_version = 'LibWho-2.0'
-local minor_version = tonumber(("$Revision: 68 $"):match("(%d+)"))
+local minor_version = tonumber("@project-revision@")
 
 local lib = LibStub:NewLibrary(major_version, minor_version)
 
@@ -145,7 +145,7 @@ function lib.UserInfo(defhandler, name, opts)
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_quiet, opts.queue, self.WHOLIB_QUEUE_SCANNING)
 	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', flags, 0)
 	args.timeout = self:CheckArgument(usage, 'opts.timeout', 'number', timeout, 5)
-	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.handler, opts.callback, defhandler)
+	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback,  opts.handler, defhandler)
 	
 	-- now args - copied and verified from opts
 	
