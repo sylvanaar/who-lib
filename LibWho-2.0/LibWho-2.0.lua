@@ -672,8 +672,8 @@ function lib:WHO_LIST_UPDATE()
 	local num
 	self.Total, num = GetNumWhoResults()
 	for i=1, num do
-		local charname, guildname, level, race, class, zone = GetWhoInfo(i)
-		self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone}
+		local charname, guildname, level, race, class, zone, nonlocalclass = GetWhoInfo(i)
+		self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone, NoLocaleClass=nonlocalclass }
 	end
 	
 	self:ReturnWho()
