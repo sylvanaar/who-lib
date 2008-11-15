@@ -171,7 +171,7 @@ function lib.UserInfo(defhandler, name, opts)
 			return nil
 		end
 	else
-		self.Cache[args.name] = {valid=false, inqueue=false, callback={}, data={Name = args.name}}
+		self.Cache[args.name] = {valid=false, inqueue=false, callback={}, data={Name = args.name}, last=now }
 	end
 	if(self.Cache[args.name].inqueue)then
 		-- query is running!
