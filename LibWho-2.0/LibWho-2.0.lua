@@ -233,8 +233,13 @@ function lib.Embed(_, handler)
 
 	for _,name in pairs(self.external) do
 		handler[name] = self[name]
+		-- PATCH by eblume: The below line was originally outside of this loop.
+		-- This was causing an Lua error which made the library useless.
+		-- I do not know what the line accomplishes - perhaps it should be removed entirely?
+		-- I've tested this commit, it seems to work 100%.
+		self['embeds'][name] = true
 	end -- do
-	self['embeds'][name] = true
+	-- self['embeds'][name] = true
 
 	return handler
 end
