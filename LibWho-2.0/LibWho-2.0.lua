@@ -185,7 +185,7 @@ function lib.UserInfo(defhandler, name, opts)
 			if(args.callback ~= nil)then
 				tinsert(self.Cache[args.name].callback, args)
 			end
-			dbg('Info(' .. args.name ..') returned cause it\'s already searching')
+			--dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 			return nil
 		end
 	else
@@ -196,7 +196,7 @@ function lib.UserInfo(defhandler, name, opts)
 		if(args.callback ~= nil)then
 			tinsert(self.Cache[args.name].callback, args)
 		end
-		dbg('Info(' .. args.name ..') returned cause it\'s already searching')
+		--dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
 	local query = 'n-"' .. args.name .. '"'
@@ -281,7 +281,7 @@ end);
 -- queue scheduler
 local queue_weights = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
 local queue_bounds = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
-function lib:GetNextFromScheduler()
+function lib:UpdateWeights()
    local weightsum, sum, count = 0, 0, 0
    for k,v in pairs(queue_weights) do
         sum = sum + v
@@ -298,6 +298,10 @@ function lib:GetNextFromScheduler()
    for k,v in pairs(queue_bounds) do
         queue_bounds[k] = queue_weights[k] * adjust * #self.Queue[k]
    end
+end
+
+function lib:GetNextFromScheduler()
+   self:UpdateWeights()
 
    local n,i = math.random(),0
    repeat
@@ -305,7 +309,7 @@ function lib:GetNextFromScheduler()
         n = n - queue_bounds[i]
    until i>=#self.Queue or n <= 0
 
-   dbg(("Q=%d, bound=%d):format(i, queue_bounds[i]"))
+   dbg(("Q=%d, bound=%d"):format(i, queue_bounds[i]))
 
    if #self.Queue[i] then
        return i, self.Queue[i]
