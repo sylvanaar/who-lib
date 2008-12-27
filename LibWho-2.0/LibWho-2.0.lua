@@ -119,6 +119,8 @@ lib['WHOLIB_QUEUE_USER'] = 1
 lib['WHOLIB_QUEUE_QUIET'] = 2
 lib['WHOLIB_QUEUE_SCANNING'] = 3
 
+
+
 local queue_all = {
 	[1] = 'WHOLIB_QUEUE_USER',
 	[2] = 'WHOLIB_QUEUE_QUIET',
@@ -276,9 +278,48 @@ lib['frame']:SetScript("OnUpdate", function(frame, elapsed)
 end);
 
 
+-- queue scheduler
+local queue_weights = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
+local queue_bounds = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
+function lib:GetNextFromScheduler()
+   local weightsum, sum, count = 0, 0, 0
+   for k,v in pairs(queue_weights) do
+        sum = sum + v
+        weightsum = weightsum + v * #self.Queue[k]
+   end
+
+   if weightsum == 0 then
+        for k,v in pairs(queue_weights) do queue_bounds[k] = v end
+        return 
+   end
+
+   local adjust = sum / weightsum
+
+   for k,v in pairs(queue_bounds) do
+        queue_bounds[k] = queue_weights[k] * adjust * #self.Queue[k]
+   end
+
+   local n,i = math.random(),0
+   repeat
+        i=i+1
+        n = n - queue_bounds[i]
+   until i>=#self.Queue or n <= 0
+
+   dbg(("Q=%d, bound=%d):format(i, queue_bounds[i]"))
+
+   if #self.Queue[i] then
+       return i, self.Queue[i]
+   end
+end
+
+lib.queue_bounds = queue_bounds
+
 function lib:AskWhoNext()
-	local args = nil
-	for k,v in ipairs(self.Queue) do
+	local v,k,args = nil
+    local kludge = 10
+	repeat 
+        k,v = self:GetNextFromScheduler()
+        if not k then break end
 		if(WhoFrame:IsShown() and k > self.WHOLIB_QUEUE_QUIET)then
 			break
 		end
@@ -286,7 +327,8 @@ function lib:AskWhoNext()
 			args = tremove(v, 1)
 			break
 		end
-	end
+        kludge = kludge - 1
+	until kludge <= 0
 	if args then
 		self.WhoInProgress = true
 		self.Result = {}
@@ -570,8 +612,7 @@ SlashCmdList['WHOLIB_DEBUG'] = function()
 	-- /wholibdebug: toggle debug on/off
 	local self = lib
 	
-	self.Debug = not self.Debug
-	DEFAULT_CHAT_FRAME:AddMessage(self:DebugFormat('Debugging is now ' .. (self.Debug and 'on' or 'off')))
+    self:SetWhoLibDebug(not self.Debug)
 end
 
 SLASH_WHOLIB_DEBUG1 = '/wholibdebug'
