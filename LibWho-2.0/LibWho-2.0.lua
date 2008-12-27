@@ -14,14 +14,30 @@ end -- if
 
 assert(LibStub, "LibWho-2.0 requires LibStub")
 
+
 local major_version = 'LibWho-2.0'
-local minor_version = tonumber("@project-revision@") or tonumber(("$Revision: 68 $"):match("(%d+)"))
+local minor_version = tonumber("@project-revision@") or 99999
 
 local lib = LibStub:NewLibrary(major_version, minor_version)
+
 
 if not lib then
 	return	-- already loaded and no upgrade necessary
 end
+
+local callbacks = LibStub("CallbackHandler-1.0"):New(lib)
+
+local am = {}
+local om = getmetatable(lib)
+if om then
+	for k, v in pairs(om) do am[k] = v end
+end
+am.__tostring = function() return major_version end
+setmetatable(lib, am)
+
+local function dbgfunc(...) if lib.Debug then print(...) end end
+local function NOP() return end
+local dbg = NOP
 
 ---
 --- initalize base
@@ -95,7 +111,7 @@ lib['external'] = {
 	'CachedUserInfo',
 	'GetWhoLibDebug',
 	'SetWhoLibDebug',
-	'RegisterWhoLibEvent',
+--	'RegisterWhoLibEvent',
 }
 
 -- queues
@@ -155,7 +171,7 @@ function lib.UserInfo(defhandler, name, opts)
 		-- user is in cache
 		if(self.Cache[args.name].valid == true and (args.timeout < 0 or self.Cache[args.name].last + args.timeout*60 > now))then
 			-- cache is valid and timeout is in range
-			self:DebugMessage('Info(' .. args.name ..') returned immedeatly')
+			dbg('Info(' .. args.name ..') returned immedeatly')
 			if(bit.band(args.flags, self.WHOLIB_FLAG_ALWAYS_CALLBACK) ~= 0)then
 				self:RaiseCallback(args, self.Cache[args.name].data)
 				return false
@@ -167,7 +183,7 @@ function lib.UserInfo(defhandler, name, opts)
 			if(args.callback ~= nil)then
 				tinsert(self.Cache[args.name].callback, args)
 			end
-			self:DebugMessage('Info(' .. args.name ..') returned cause it\'s already searching')
+			dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 			return nil
 		end
 	else
@@ -178,7 +194,7 @@ function lib.UserInfo(defhandler, name, opts)
 		if(args.callback ~= nil)then
 			tinsert(self.Cache[args.name].callback, args)
 		end
-		self:DebugMessage('Info(' .. args.name ..') returned cause it\'s already searching')
+		dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
 	local query = 'n-"' .. args.name .. '"'
@@ -187,7 +203,7 @@ function lib.UserInfo(defhandler, name, opts)
 		tinsert(self.Cache[args.name].callback, args)
 	end
 	self.CacheQueue[query] = args.name
-	self:DebugMessage('Info(' .. args.name ..') added to queue')
+	dbg('Info(' .. args.name ..') added to queue')
 	self:AskWho( { query = query, queue = args.queue, flags = 0, info = args.name } )
 	return nil
 end
@@ -205,24 +221,21 @@ function lib.CachedUserInfo(_, name)
 end
 
 function lib.GetWhoLibDebug(_, mode)
-	local self = lib
-	
-	return self.Debug
+    return lib.Debug
 end
 
 function lib.SetWhoLibDebug(_, mode)
-	local self = lib
-	
-	self.Debug = (mode and true) or false
+    lib.Debug = mode
+	dbg = mode and dbgfunc or NOP
 end
 
-function lib.RegisterWhoLibEvent(defhandler, event, callback, handler)
-	local self, usage = lib, 'RegisterWhoLibEvent(event, callback, [handler])'
-	
-	self:CheckPreset(usage, 'event', self.events, event)
-	local callback, handler = self:CheckCallback(usage, '', callback, handler, defhandler, true)
-	table.insert(self.events[event], {callback=callback, handler=handler})
-end
+--function lib.RegisterWhoLibEvent(defhandler, event, callback, handler)
+--	local self, usage = lib, 'RegisterWhoLibEvent(event, callback, [handler])'
+--	
+--	self:CheckPreset(usage, 'event', self.events, event)
+--	local callback, handler = self:CheckCallback(usage, '', callback, handler, defhandler, true)
+--	table.insert(self.events[event], {callback=callback, handler=handler})
+--end
 
 -- non-embedded externals
 
@@ -248,16 +261,6 @@ end
 ---
 --- internal functions
 ---
-
-function lib:DebugFormat(msg)
-	return major_version..'r'..minor_version..': '..msg
-end
-
-function lib:DebugMessage(msg)
-	if self.Debug then
-		DEFAULT_CHAT_FRAME:AddMessage(self:DebugFormat(msg))
-	end
-end
 
 function lib:AskWhoNextIn5sec()
 	self.Timeout_time = 5
@@ -311,7 +314,7 @@ end
 
 function lib:AskWho(args)
 	tinsert(self.Queue[args.queue], args)
-	self:DebugMessage('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
+	dbg('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
 	if(not self.WhoInProgress)then
 		self:AskWhoNext()
@@ -322,7 +325,7 @@ function lib:ReturnWho()
 	if(self.Args.queue == self.WHOLIB_QUEUE_QUIET or self.Args.queue == self.WHOLIB_QUEUE_SCANNING)then
 		self.Quiet = nil
 	end
-	self:DebugMessage('[' .. self.Args.queue .. '] returned "' .. self.Args.query .. '", total=' .. self.Total ..' , queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
+	dbg('[' .. self.Args.queue .. '] returned "' .. self.Args.query .. '", total=' .. self.Total ..' , queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	local now = time()
 	local complete = self.Total == #self.Result
 	for _,v in pairs(self.Result)do
@@ -353,7 +356,7 @@ function lib:ReturnWho()
 					end
 				end
 			end
-			self:DebugMessage('Info(' .. v.Name ..') returned: on')
+			dbg('Info(' .. v.Name ..') returned: on')
 			for _,v2 in pairs(self.Cache[v.Name].callback) do
 				self:RaiseCallback(v2, self:ReturnUserInfo(v.Name))
 			end
@@ -375,7 +378,7 @@ function lib:ReturnWho()
 				self.Cache[name].data.Online = nil -- player is unknown (more results from who than can be displayed)
 			end
 		end
-		self:DebugMessage('Info(' .. name ..') returned: ' .. (self.Cache[name].data.Online == false and 'off' or 'unkn'))
+		dbg('Info(' .. name ..') returned: ' .. (self.Cache[name].data.Online == false and 'off' or 'unkn'))
 		for _,v in pairs(self.Cache[name].callback) do
 			self:RaiseCallback(v, self:ReturnUserInfo(v.Name))
 		end
@@ -527,16 +530,14 @@ function lib:DupAll(x, ...)
 	end -- if
 end
 
+local MULTIBYTE_FIRST_CHAR = "^([\192-\255]?%a?[\128-\191]*)"
+
 function lib:CapitalizeInitial(name)
-	local bytes, pos = {string.byte(name,1,-1)}, 1
-	while(bytes[pos+1] and bit.band(bytes[pos+1], 0xc0) == 0x80)do
-		pos = pos + 1
-	end -- while
-	return string.upper(string.sub(name, 1, pos)) .. string.lower(string.sub(name, pos+1))
+    return name:gsub(MULTIBYTE_FIRST_CHAR, string.upper, 1)
 end
 
 ---
---- user events
+--- user events (Using CallbackHandler)
 ---
 
 lib.PossibleEvents = {
@@ -544,16 +545,8 @@ lib.PossibleEvents = {
 	'WHOLIB_QUERY_ADDED',
 }
 
-for _,name in pairs(lib.PossibleEvents) do
-	if lib.events[name] ~= table then
-		lib.events[name] = {}
-	end -- if
-end -- for
-
 function lib:TriggerEvent(event, ...)
-	for _,callback in pairs(self.events[event]) do
-		self:RaiseCallback(callback, event, ...)
-	end -- for
+    callbacks:Fire(event, ...)
 end
 
 ---
@@ -626,31 +619,56 @@ if not lib['hooked']['WhoFrame_Hide'] then
 end -- if
 
 
+
+----- Coroutine based implementation (future)
+--function lib:sendWhoResult(val)
+--    coroutine.yield(val)
+--end
+--
+--function lib:sendWaitState(val)
+--    coroutine.yield(val)
+--end
+--
+--function lib:producer()
+--    return coroutine.create(
+--    function()
+--        lib:AskWhoNext()
+--        lib:sendWaitState(true)
+--        
+--        -- Resumed look for data
+--
+--    end)
+--end  
+
+
+
+
+
 ---
 --- hook replacements
 ---
 
 function lib.hook.SendWho(self, msg)
-	self:AskWho({query = msg, queue = (self.SetWhoToUIState == 1) and self.WHOLIB_QUEUE_QUIET or self.WHOLIB_QUEUE_USER, flags = 0})
+	lib:AskWho({query = msg, queue = (lib.SetWhoToUIState == 1) and lib.WHOLIB_QUEUE_QUIET or lib.WHOLIB_QUEUE_USER, flags = 0})
 end
 
 function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
-	self:GuiWho(WhoFrameEditBox:GetText())
+	lib:GuiWho(WhoFrameEditBox:GetText())
 end
 
 function lib.hook.FriendsFrame_OnEvent(self, ...)
 	if event ~= 'WHO_LIST_UPDATE' or not self.Quiet then
-		self.hooked.FriendsFrame_OnEvent(...)
+		lib.hooked.FriendsFrame_OnEvent(...)
 	end
 end
 
 function lib.hook.SetWhoToUI(self, state)
-	self.SetWhoToUIState = state
+	lib.SetWhoToUIState = state
 end
 
 function lib.hook.WhoFrame_Hide(self)
-	if(not self.WhoInProgress)then
-		self:AskWhoNext()
+	if(not lib.WhoInProgress)then
+		lib:AskWhoNext()
 	end
 end
 
