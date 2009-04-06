@@ -71,7 +71,7 @@ lib.Args = nil
 lib.Total = nil
 lib.Quiet = nil
 lib.Debug = false
-lib.Cache = {}
+lib.Cache = setmetatable({}, {__mode='k'})
 lib.CacheQueue = {}
 lib.SetWhoToUIState = 0
 
@@ -458,7 +458,7 @@ function lib:ConsoleWho(msg)
 	WhoFrameEditBox:SetText(msg)
 	local console_show = false
 	local q1count = #self.Queue[self.WHOLIB_QUEUE_USER]
-	if(q1count > 0 and self.Queue[self.WHOLIB_QUEUE_USER][q1count][q] == msg)then -- last query is itdenical: drop
+	if(q1count > 0 and self.Queue[self.WHOLIB_QUEUE_USER][q1count] == msg)then -- last query is itdenical: drop
 		return
 	end
 	if(q1count == 1 and self.Queue[self.WHOLIB_QUEUE_USER][1].console_show == false)then -- display 'queued' if console and not yet shown
