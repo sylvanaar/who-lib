@@ -1,4 +1,4 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: Lib: LibWho-2.0
 ## Notes: Queing of /who and SendWho() queries and a much better interface (see docs), with gurantee to be executed & callback.
 ## Version: 2.0.@project-revision@
