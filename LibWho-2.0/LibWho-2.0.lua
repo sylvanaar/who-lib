@@ -71,7 +71,7 @@ lib.Args = nil
 lib.Total = nil
 lib.Quiet = nil
 lib.Debug = false
-lib.Cache = setmetatable({}, {__mode='k'})
+lib.Cache = {}
 lib.CacheQueue = {}
 lib.SetWhoToUIState = 0
 
@@ -134,6 +134,12 @@ local queue_quiet = {
 
 -- bit masks!
 lib['WHOLIB_FLAG_ALWAYS_CALLBACK'] = 1
+
+function lib:Reset()
+    self.Queue = {[1]={}, [2]={}, [3]={}}
+    self.Cache = {}
+    self.CacheQueue = {}
+end    
 
 function lib.Who(defhandler, query, opts)
 	local self, args, usage = lib, {}, 'Who(query, [opts])'
@@ -199,14 +205,16 @@ function lib.UserInfo(defhandler, name, opts)
 		--dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
-	local query = 'n-"' .. args.name .. '"'
-	self.Cache[args.name].inqueue = true
-	if(args.callback ~= nil)then
-		tinsert(self.Cache[args.name].callback, args)
-	end
-	self.CacheQueue[query] = args.name
-	dbg('Info(' .. args.name ..') added to queue')
-	self:AskWho( { query = query, queue = args.queue, flags = 0, info = args.name } )
+    if args.name and args.name:len() > 0 then
+    	local query = 'n-"' .. args.name .. '"'
+    	self.Cache[args.name].inqueue = true
+    	if(args.callback ~= nil)then
+    		tinsert(self.Cache[args.name].callback, args)
+    	end
+    	self.CacheQueue[query] = args.name
+    	dbg('Info(' .. args.name ..') added to queue')
+    	self:AskWho( { query = query, queue = args.queue, flags = 0, info = args.name } )
+    end
 	return nil
 end
 
@@ -311,7 +319,7 @@ function lib:GetNextFromScheduler()
 
    dbg(("Q=%d, bound=%d"):format(i, queue_bounds[i]))
 
-   if #self.Queue[i] then
+   if #self.Queue[i] > 0 then
        return i, self.Queue[i]
    end
 end
