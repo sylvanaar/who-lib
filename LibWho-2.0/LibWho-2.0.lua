@@ -279,7 +279,7 @@ function lib:AllQueuesEmpty()
 end
 
 function lib:AskWhoNextIn5sec()
-	self.Timeout_time = 5
+	self.Timeout_time = 7.5
 	self['frame']:Show()
 end
 
