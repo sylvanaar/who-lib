@@ -204,7 +204,7 @@ function lib.UserInfo(defhandler, name, opts)
 		if(args.callback ~= nil)then
 			tinsert(self.Cache[args.name].callback, args)
 		end
-		--dbg('Info(' .. args.name ..') returned cause it\'s already searching')
+		dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
     if args.name and args.name:len() > 0 then
@@ -279,8 +279,13 @@ function lib:AllQueuesEmpty()
 end
 
 function lib:AskWhoNextIn5sec()
+	dbg("Waiting to send next who")
 	self.Timeout_time = 7.5
 	self['frame']:Show()
+end
+
+function lib:CancelPendingWhoNext()
+	lib['frame']:Hide()
 end
 
 lib['frame']:SetScript("OnUpdate", function(frame, elapsed)
@@ -336,6 +341,16 @@ end
 lib.queue_bounds = queue_bounds
 
 function lib:AskWhoNext()
+	self:CancelPendingWhoNext()
+
+	if self.WhoInProgress then
+		-- if we had a who going, it didnt complete
+		dbg("--Query timed out")
+	end
+
+
+	self.WhoInProgress = false 
+
 	local v,k,args = nil
     local kludge = 10
 	repeat 
@@ -385,6 +400,8 @@ function lib:AskWho(args)
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
 	if(not self.WhoInProgress)then
 		self:AskWhoNext()
+	else
+		self:AskWhoNextIn5sec()
 	end
 end
 
@@ -717,6 +734,7 @@ end -- if
 ---
 
 function lib.hook.SendWho(self, msg)
+	dbg("SendWho: "..msg)
 	lib:AskWho({query = msg, queue = (lib.SetWhoToUIState == 1) and lib.WHOLIB_QUEUE_QUIET or lib.WHOLIB_QUEUE_USER, flags = 0})
 end
 
