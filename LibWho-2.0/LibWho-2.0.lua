@@ -166,7 +166,9 @@ function lib.UserInfo(defhandler, name, opts)
 	local self, args, usage = lib, {}, 'UserInfo(name, [opts])'
 	local now = time()
 	
-	args.name = self:CapitalizeInitial(self:CheckArgument(usage, 'name', 'string', name))
+    name = self:CheckArgument(usage, 'name', 'string', name)
+    if name:len() == 0 then return end
+	args.name = self:CapitalizeInitial(name)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_quiet, opts.queue, self.WHOLIB_QUEUE_SCANNING)
 	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', flags, 0)
@@ -272,6 +274,10 @@ end
 --- internal functions
 ---
 
+function lib:AllQueuesEmpty()
+	return (#self.Queue[1] + #self.Queue[2] + #self.Queue[3]) == 0
+end
+
 function lib:AskWhoNextIn5sec()
 	self.Timeout_time = 5
 	self['frame']:Show()
@@ -320,7 +326,10 @@ function lib:GetNextFromScheduler()
    dbg(("Q=%d, bound=%d"):format(i, queue_bounds[i]))
 
    if #self.Queue[i] > 0 then
+        dbg(("Q=%d, bound=%d"):format(i, queue_bounds[i]))
        return i, self.Queue[i]
+   else
+        dbg("Queues empty, waiting")
    end
 end
 
@@ -363,6 +372,10 @@ function lib:AskWhoNext()
 		self.hooked.SendWho(args.query)
 	else
 		self.WhoInProgress = false
+	end
+
+	if not self:AllQueuesEmpty() then
+		self:AskWhoNextIn5sec()
 	end
 end
 
@@ -441,7 +454,9 @@ function lib:ReturnWho()
 	end
 	self:RaiseCallback(self.Args, self.Args.query, self.Result, complete, self.Args.info)
 	self:TriggerEvent('WHOLIB_QUERY_RESULT', self.Args.query, self.Result, complete, self.Args.info)
-	self:AskWhoNextIn5sec()
+	if not self:AllQueuesEmpty() then
+		self:AskWhoNextIn5sec()
+	end
 end
 
 function lib:GuiWho(msg)
