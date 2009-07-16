@@ -181,7 +181,7 @@ function lib.UserInfo(defhandler, name, opts)
 		-- user is in cache
 		if(self.Cache[args.name].valid == true and (args.timeout < 0 or self.Cache[args.name].last + args.timeout*60 > now))then
 			-- cache is valid and timeout is in range
-			dbg('Info(' .. args.name ..') returned immedeatly')
+			--dbg('Info(' .. args.name ..') returned immedeatly')
 			if(bit.band(args.flags, self.WHOLIB_FLAG_ALWAYS_CALLBACK) ~= 0)then
 				self:RaiseCallback(args, self.Cache[args.name].data)
 				return false
@@ -278,9 +278,13 @@ function lib:AllQueuesEmpty()
 	return (#self.Queue[1] + #self.Queue[2] + #self.Queue[3]) == 0
 end
 
+local queryInterval = 5
+
+function lib:GetQueryInterval() return queryInterval end
+
 function lib:AskWhoNextIn5sec()
 	dbg("Waiting to send next who")
-	self.Timeout_time = 7.5
+	self.Timeout_time = queryInterval
 	self['frame']:Show()
 end
 
@@ -346,6 +350,11 @@ function lib:AskWhoNext()
 	if self.WhoInProgress then
 		-- if we had a who going, it didnt complete
 		dbg("--Query timed out")
+
+		if queryInterval < 10 then 
+			queryInterval = queryInterval + 0.5
+			dbg("--Throttling down to 1 who per " .. queryInterval .. "s")
+		end
 	end
 
 
@@ -409,6 +418,14 @@ function lib:ReturnWho()
 	if(self.Args.queue == self.WHOLIB_QUEUE_QUIET or self.Args.queue == self.WHOLIB_QUEUE_SCANNING)then
 		self.Quiet = nil
 	end
+
+	if queryInterval > 5 then
+		queryInterval = queryInterval - 0.5
+		dbg("--Throttling up to 1 who per " .. queryInterval .. "s")
+	end
+
+	self.WhoInProgress = false
+
 	dbg('[' .. self.Args.queue .. '] returned "' .. self.Args.query .. '", total=' .. self.Total ..' , queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	local now = time()
 	local complete = self.Total == #self.Result
