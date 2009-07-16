@@ -6,6 +6,8 @@
 ## eMail: wow@kazik.de
 ## X-Category: Library
 
+## OptionalDeps: LibStub, CallbackHandler-1.0
+
 ## LoadOnDemand: 1
 
 #@no-lib-strip@
