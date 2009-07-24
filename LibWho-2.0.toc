@@ -11,8 +11,8 @@
 ## LoadOnDemand: 1
 
 #@no-lib-strip@
-LibStub\LibStub.lua
-CallbackHandler-1.0\CallbackHandler-1.0.lua
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
 #@end-no-lib-strip@
 
 LibWho-2.0\LibWho-2.0.lua
