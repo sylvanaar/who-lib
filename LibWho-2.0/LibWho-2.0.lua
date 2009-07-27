@@ -76,6 +76,8 @@ lib.CacheQueue = {}
 lib.SetWhoToUIState = 0
 
 
+lib.MinInterval = 2.5
+lib.MaxInterval = 10
 
 ---
 --- locale
@@ -176,22 +178,23 @@ function lib.UserInfo(defhandler, name, opts)
 	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback,  opts.handler, defhandler)
 	
 	-- now args - copied and verified from opts
+	local cachedName = self.Cache[args.name]
 	
-	if(self.Cache[args.name] ~= nil)then
+	if(cachedName ~= nil)then
 		-- user is in cache
-		if(self.Cache[args.name].valid == true and (args.timeout < 0 or self.Cache[args.name].last + args.timeout*60 > now))then
+		if(cachedName.valid == true and (args.timeout < 0 or cachedName.last + args.timeout*60 > now))then
 			-- cache is valid and timeout is in range
 			--dbg('Info(' .. args.name ..') returned immedeatly')
 			if(bit.band(args.flags, self.WHOLIB_FLAG_ALWAYS_CALLBACK) ~= 0)then
-				self:RaiseCallback(args, self.Cache[args.name].data)
+				self:RaiseCallback(args, cachedName.data)
 				return false
 			else
 				return self:DupAll(self:ReturnUserInfo(name))
 			end
-		elseif(self.Cache[args.name].valid == false)then
+		elseif(cachedName.valid == false)then
 			-- query is already running (first try)
 			if(args.callback ~= nil)then
-				tinsert(self.Cache[args.name].callback, args)
+				tinsert(cachedName.callback, args)
 			end
 			--dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 			return nil
@@ -199,19 +202,22 @@ function lib.UserInfo(defhandler, name, opts)
 	else
 		self.Cache[args.name] = {valid=false, inqueue=false, callback={}, data={Name = args.name}, last=now }
 	end
-	if(self.Cache[args.name].inqueue)then
+	
+	local cachedName = self.Cache[args.name]
+	
+	if(cachedName.inqueue)then
 		-- query is running!
 		if(args.callback ~= nil)then
-			tinsert(self.Cache[args.name].callback, args)
+			tinsert(cachedName.callback, args)
 		end
 		dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
     if args.name and args.name:len() > 0 then
     	local query = 'n-"' .. args.name .. '"'
-    	self.Cache[args.name].inqueue = true
+    	cachedName.inqueue = true
     	if(args.callback ~= nil)then
-    		tinsert(self.Cache[args.name].callback, args)
+    		tinsert(cachedName.callback, args)
     	end
     	self.CacheQueue[query] = args.name
     	dbg('Info(' .. args.name ..') added to queue')
@@ -275,7 +281,14 @@ end
 ---
 
 function lib:AllQueuesEmpty()
-	return (#self.Queue[1] + #self.Queue[2] + #self.Queue[3]) == 0
+    local queueCount = #self.Queue[1] + #self.Queue[2] + #self.Queue[3] + #self.CacheQueue
+
+    -- Be sure that we have cleared the in-progress status
+    if self.WhoInProgress then
+        queueCount = queueCount + 1
+    end
+    
+	return queueCount == 0
 end
 
 local queryInterval = 5
@@ -356,7 +369,7 @@ function lib:AskWhoNext()
 			tinsert(self.Queue[args.queue], args)
 		end
 
-		if queryInterval < 10 then 
+		if queryInterval < lib.MaxInterval then 
 			queryInterval = queryInterval + 0.5
 			dbg("--Throttling down to 1 who per " .. queryInterval .. "s")
 		end
@@ -379,6 +392,7 @@ function lib:AskWhoNext()
 		end
         kludge = kludge - 1
 	until kludge <= 0
+	
 	if args then
 		self.WhoInProgress = true
 		self.Result = {}
@@ -403,8 +417,11 @@ function lib:AskWhoNext()
 		self.WhoInProgress = false
 	end
 
+    -- Keep processing the who queue if there is more work
 	if not self:AllQueuesEmpty() then
 		self:AskWhoNextIn5sec()
+    else
+        dbg("*** Done processing requests ***")
 	end
 end
 
@@ -412,6 +429,7 @@ function lib:AskWho(args)
 	tinsert(self.Queue[args.queue], args)
 	dbg('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
+	
 	if(not self.WhoInProgress)then
 		self:AskWhoNext()
 	else
@@ -424,7 +442,7 @@ function lib:ReturnWho()
 		self.Quiet = nil
 	end
 
-	if queryInterval > 5 then
+	if queryInterval > self.MinInterval then
 		queryInterval = queryInterval - 0.5
 		dbg("--Throttling up to 1 who per " .. queryInterval .. "s")
 	end
@@ -438,11 +456,14 @@ function lib:ReturnWho()
 		if(self.Cache[v.Name] == nil)then
 			self.Cache[v.Name] = { inqueue = false, callback = {} }
 		end
-		self.Cache[v.Name].valid = true -- is now valid
-		self.Cache[v.Name].data = v -- update data
-		self.Cache[v.Name].data.Online = true -- player is online
-		self.Cache[v.Name].last = now -- update timestamp
-		if(self.Cache[v.Name].inqueue)then
+		
+		local cachedName = self.Cache[v.Name]
+		
+		cachedName.valid = true -- is now valid
+		cachedName.data = v -- update data
+		cachedName.data.Online = true -- player is online
+		cachedName.last = now -- update timestamp
+		if(cachedName.inqueue)then
 			if(self.Args.info and self.CacheQueue[self.Args.query] == v.Name)then
 				-- found by the query which was created to -> remove us from query
 				self.CacheQueue[self.Args.query] = nil
@@ -463,36 +484,38 @@ function lib:ReturnWho()
 				end
 			end
 			dbg('Info(' .. v.Name ..') returned: on')
-			for _,v2 in pairs(self.Cache[v.Name].callback) do
+			for _,v2 in pairs(cachedName.callback) do
 				self:RaiseCallback(v2, self:ReturnUserInfo(v.Name))
 			end
-			self.Cache[v.Name].callback = {}
+			cachedName.callback = {}
 		end
-		self.Cache[v.Name].inqueue = false -- query is done
+		cachedName.inqueue = false -- query is done
 	end
 	if(self.Args.info and self.CacheQueue[self.Args.query] ~= nil)then
 		-- the query did not deliver the result => not online!
 		local name = self.CacheQueue[self.Args.query]
-		if(self.Cache[name].inqueue)then
+		local cachedName = self.Cache[name]
+		if (cachedName.inqueue)then
 			-- nothing found (yet)
-			self.Cache[name].valid = true -- is now valid
-			self.Cache[name].inqueue = false -- query is done?
-			self.Cache[name].last = now -- update timestamp
+			cachedName.valid = true -- is now valid
+			cachedName.inqueue = false -- query is done?
+			cachedName.last = now -- update timestamp
 			if(complete)then
-				self.Cache[name].data.Online = false -- player is offline
+				cachedName.data.Online = false -- player is offline
 			else
-				self.Cache[name].data.Online = nil -- player is unknown (more results from who than can be displayed)
+				cachedName.data.Online = nil -- player is unknown (more results from who than can be displayed)
 			end
 		end
-		dbg('Info(' .. name ..') returned: ' .. (self.Cache[name].data.Online == false and 'off' or 'unkn'))
-		for _,v in pairs(self.Cache[name].callback) do
+		dbg('Info(' .. name ..') returned: ' .. (cachedName.data.Online == false and 'off' or 'unkn'))
+		for _,v in pairs(cachedName.callback) do
 			self:RaiseCallback(v, self:ReturnUserInfo(v.Name))
 		end
-		self.Cache[name].callback = {}
+		cachedName.callback = {}
 		self.CacheQueue[self.Args.query] = nil
 	end
 	self:RaiseCallback(self.Args, self.Args.query, self.Result, complete, self.Args.info)
 	self:TriggerEvent('WHOLIB_QUERY_RESULT', self.Args.query, self.Result, complete, self.Args.info)
+	
 	if not self:AllQueuesEmpty() then
 		self:AskWhoNextIn5sec()
 	end
@@ -519,15 +542,18 @@ end
 function lib:ConsoleWho(msg)
 	WhoFrameEditBox:SetText(msg)
 	local console_show = false
-	local q1count = #self.Queue[self.WHOLIB_QUEUE_USER]
-	if(q1count > 0 and self.Queue[self.WHOLIB_QUEUE_USER][q1count] == msg)then -- last query is itdenical: drop
+	local q1 = self.Queue[self.WHOLIB_QUEUE_USER]
+	local q1count = #q1
+	
+	if(q1count > 0 and q1[q1count] == msg)then -- last query is itdenical: drop
 		return
 	end
-	if(q1count == 1 and self.Queue[self.WHOLIB_QUEUE_USER][1].console_show == false)then -- display 'queued' if console and not yet shown
+	
+	if(q1count == 1 and q1[1].console_show == false)then -- display 'queued' if console and not yet shown
 		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], self.Queue[self.WHOLIB_QUEUE_USER][1].query), 1, 1, 0)
-		self.Queue[self.WHOLIB_QUEUE_USER][1].console_show = true
+		q1[1].console_show = true
 	end
-	if(q1count > 0)then
+	if(q1count > 0 or self.WhoInProgress)then
 		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], msg), 1, 1, 0)
 		console_show = true
 	end
