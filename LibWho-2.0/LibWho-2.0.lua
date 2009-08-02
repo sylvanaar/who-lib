@@ -173,8 +173,8 @@ function lib.UserInfo(defhandler, name, opts)
 	args.name = self:CapitalizeInitial(name)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_quiet, opts.queue, self.WHOLIB_QUEUE_SCANNING)
-	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', flags, 0)
-	args.timeout = self:CheckArgument(usage, 'opts.timeout', 'number', timeout, 5)
+	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', opts.flags, 0)
+	args.timeout = self:CheckArgument(usage, 'opts.timeout', 'number', opts.timeout, 5)
 	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback,  opts.handler, defhandler)
 	
 	-- now args - copied and verified from opts
