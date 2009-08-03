@@ -414,6 +414,7 @@ function lib:AskWhoNext()
 		end
 		self.hooked.SendWho(args.query)
 	else
+		self.Args = nil
 		self.WhoInProgress = false
 	end
 
@@ -471,12 +472,13 @@ function lib:ReturnWho()
 				-- found by another query
 				for k2,v2 in pairs(self.CacheQueue) do
 					if(v2 == v.Name)then
-						self.CacheQueue[k2] = nil
 						for i=self.WHOLIB_QUEUE_QUIET, self.WHOLIB_QUEUE_SCANNING do
 							for k3,v3 in pairs(self.Queue[i]) do
 								if(v3.query == k2 and v3.info)then
 									-- remove the query which was generated for this user, cause another query was faster...
+									dbg("Found '"..v.Name.."' early via query '"..self.Args.query.."'")
 									table.remove(self.Queue[i], k3)
+									self.CacheQueue[k2] = nil
 								end
 							end
 						end
@@ -491,7 +493,7 @@ function lib:ReturnWho()
 		end
 		cachedName.inqueue = false -- query is done
 	end
-	if(self.Args.info and self.CacheQueue[self.Args.query] ~= nil)then
+	if(self.Args.info and self.CacheQueue[self.Args.query])then
 		-- the query did not deliver the result => not online!
 		local name = self.CacheQueue[self.Args.query]
 		local cachedName = self.Cache[name]
@@ -540,12 +542,12 @@ function lib:GuiWho(msg)
 end
 
 function lib:ConsoleWho(msg)
-	WhoFrameEditBox:SetText(msg)
+	--WhoFrameEditBox:SetText(msg)
 	local console_show = false
 	local q1 = self.Queue[self.WHOLIB_QUEUE_USER]
 	local q1count = #q1
 	
-	if(q1count > 0 and q1[q1count] == msg)then -- last query is itdenical: drop
+	if(q1count > 0 and q1[q1count].query == msg)then -- last query is itdenical: drop
 		return
 	end
 	
