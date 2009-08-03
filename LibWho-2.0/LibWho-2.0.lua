@@ -189,7 +189,7 @@ function lib.UserInfo(defhandler, name, opts)
 				self:RaiseCallback(args, cachedName.data)
 				return false
 			else
-				return self:DupAll(self:ReturnUserInfo(name))
+				return self:DupAll(self:ReturnUserInfo(args.name))
 			end
 		elseif(cachedName.valid == false)then
 			-- query is already running (first try)
