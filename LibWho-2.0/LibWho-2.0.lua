@@ -296,6 +296,8 @@ local queryInterval = 5
 function lib:GetQueryInterval() return queryInterval end
 
 function lib:AskWhoNextIn5sec()
+	if self.frame:IsShown() then return end
+
 	dbg("Waiting to send next who")
 	self.Timeout_time = queryInterval
 	self['frame']:Show()
@@ -358,6 +360,8 @@ end
 lib.queue_bounds = queue_bounds
 
 function lib:AskWhoNext()
+	if self.frame:IsShown() then return end
+
 	self:CancelPendingWhoNext()
 
 	if self.WhoInProgress then
@@ -412,6 +416,8 @@ function lib:AskWhoNext()
 		else
 			self.hooked.SetWhoToUI(0)
 		end
+
+		dbg("QUERY: "..args.query)
 		self.hooked.SendWho(args.query)
 	else
 		self.Args = nil
@@ -449,7 +455,7 @@ function lib:ReturnWho()
 	end
 
 	self.WhoInProgress = false
-
+	dbg("RESULT: "..self.Args.query)
 	dbg('[' .. self.Args.queue .. '] returned "' .. self.Args.query .. '", total=' .. self.Total ..' , queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	local now = time()
 	local complete = self.Total == #self.Result
@@ -551,9 +557,9 @@ function lib:ConsoleWho(msg)
 		return
 	end
 	
-	if(q1count == 1 and q1[1].console_show == false)then -- display 'queued' if console and not yet shown
-		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], self.Queue[self.WHOLIB_QUEUE_USER][1].query), 1, 1, 0)
-		q1[1].console_show = true
+	if(q1count > 0 and q1[q1count].console_show == false)then -- display 'queued' if console and not yet shown
+		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], q1[q1count].query), 1, 1, 0)
+		q1[q1count].console_show = true
 	end
 	if(q1count > 0 or self.WhoInProgress)then
 		DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_queued'], msg), 1, 1, 0)
@@ -793,7 +799,7 @@ function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
 end
 
 function lib.hook.FriendsFrame_OnEvent(self, ...)
-	if event ~= 'WHO_LIST_UPDATE' or not self.Quiet then
+	if event ~= 'WHO_LIST_UPDATE' or not lib.Quiet then
 		lib.hooked.FriendsFrame_OnEvent(...)
 	end
 end
@@ -804,7 +810,7 @@ end
 
 function lib.hook.WhoFrame_Hide(self)
 	if(not lib.WhoInProgress)then
-		lib:AskWhoNext()
+		lib:AskWhoNextIn5sec()
 	end
 end
 
