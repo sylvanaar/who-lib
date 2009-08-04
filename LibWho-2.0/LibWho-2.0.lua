@@ -366,7 +366,7 @@ function lib:AskWhoNext()
 
 	if self.WhoInProgress then
 		-- if we had a who going, it didnt complete
-		dbg("--Query timed out")
+		dbg("TIMEOUT: "..self.Args.query)
 		local args = self.Args
 		if args.info and self.CacheQueue[args.query] ~= nil then
 			dbg("Requeing "..args.query)
