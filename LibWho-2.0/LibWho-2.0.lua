@@ -360,7 +360,10 @@ end
 lib.queue_bounds = queue_bounds
 
 function lib:AskWhoNext()
-	if self.frame:IsShown() then return end
+	if lib.frame:IsShown() then 
+		dbg("Already waiting")
+		return 
+	end
 
 	self:CancelPendingWhoNext()
 
@@ -368,10 +371,11 @@ function lib:AskWhoNext()
 		-- if we had a who going, it didnt complete
 		dbg("TIMEOUT: "..self.Args.query)
 		local args = self.Args
-		if args.info and self.CacheQueue[args.query] ~= nil then
+		self.Args = nil
+--		if args.info and self.CacheQueue[args.query] ~= nil then
 			dbg("Requeing "..args.query)
 			tinsert(self.Queue[args.queue], args)
-		end
+--		end
 
 		if queryInterval < lib.MaxInterval then 
 			queryInterval = queryInterval + 0.5
