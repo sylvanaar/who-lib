@@ -408,17 +408,18 @@ function lib:AskWhoNext()
 		self.Total = -1
 		if(args.console_show == true)then
 			DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_query'], args.query), 1, 1, 0)
+			
 		end
 		if(args.queue == self.WHOLIB_QUEUE_USER)then
 			WhoFrameEditBox:SetText(args.query)
 		end
+
 		if(args.queue == self.WHOLIB_QUEUE_QUIET or args.queue == self.WHOLIB_QUEUE_SCANNING)then
 			self.hooked.SetWhoToUI(1)
 			self.Quiet = true
-		elseif(args.gui == true)then
-			self.hooked.SetWhoToUI(1)
 		else
-			self.hooked.SetWhoToUI(0)
+			self.Quiet = false
+			self.hooked.SetWhoToUI(args.gui and 1 or 0)
 		end
 
 		dbg("QUERY: "..args.query)
@@ -441,11 +442,7 @@ function lib:AskWho(args)
 	dbg('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
 	
-	if(not self.WhoInProgress)then
-		self:AskWhoNext()
-	else
-		self:AskWhoNextIn5sec()
-	end
+	self:AskWhoNext()
 end
 
 function lib:ReturnWho()
@@ -700,15 +697,16 @@ end
 ---
 
 SlashCmdList['WHO'] = function(msg)
+	dbg("console /who: "..msg)
 	-- new /who function
-	local self = lib
+	--local self = lib
 	
 	if(msg == '')then
-		self:GuiWho(WhoFrame_GetDefaultWhoCommand())
+		lib:GuiWho(WhoFrame_GetDefaultWhoCommand())
 	elseif(WhoFrame:IsVisible())then
-		self:GuiWho(msg)
+		lib:GuiWho(msg)
 	else
-		self:ConsoleWho(msg)
+		lib:ConsoleWho(msg)
 	end
 end
 	
@@ -795,7 +793,7 @@ end -- if
 
 function lib.hook.SendWho(self, msg)
 	dbg("SendWho: "..msg)
-	lib:AskWho({query = msg, queue = (lib.SetWhoToUIState == 1) and lib.WHOLIB_QUEUE_QUIET or lib.WHOLIB_QUEUE_USER, flags = 0})
+	lib.AskWho(self, {query = msg, queue = lib.WHOLIB_QUEUE_QUIET, flags = 0})
 end
 
 function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
