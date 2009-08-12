@@ -319,6 +319,11 @@ end);
 -- queue scheduler
 local queue_weights = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
 local queue_bounds = { [1] = 0.6, [2] = 0.2, [3] = 0.2 }
+
+-- allow for single queries from the user to get processed faster
+local lastInstantQuery = time()
+local INSTANT_QUERY_MIN_INTERVAL = 60 -- only once every 1 min
+
 function lib:UpdateWeights()
    local weightsum, sum, count = 0, 0, 0
    for k,v in pairs(queue_weights) do
@@ -340,6 +345,17 @@ end
 
 function lib:GetNextFromScheduler()
    self:UpdateWeights()
+
+   -- Since an addon could just fill up the user q for instant processing
+   -- we have to limit instants to 1 per INSTANT_QUERY_MIN_INTERVAL
+   -- and only try instant fulfilment if it will empty the user queue
+   if #self.Queue[1] == 1 then 
+		if time() - lastInstantQuery > INSTANT_QUERY_MIN_INTERVAL then
+			dbg("INSTANT")
+			lastInstantQuery = time()
+			return 1, self.Queue[1]
+		end
+   end
 
    local n,i = math.random(),0
    repeat
@@ -375,6 +391,10 @@ function lib:AskWhoNext()
 --		if args.info and self.CacheQueue[args.query] ~= nil then
 			dbg("Requeing "..args.query)
 			tinsert(self.Queue[args.queue], args)
+			if args.console_show ~= nil then
+				DEFAULT_CHAT_FRAME:AddMessage(("Timeout on result of '%s' - retrying..."):format(args.query),1,1,0)
+				args.console_show = true
+			end
 --		end
 
 		if queryInterval < lib.MaxInterval then 
