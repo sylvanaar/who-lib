@@ -628,10 +628,10 @@ function lib:CheckCallback(func, prefix, callback, handler, defhandler, nonil)
 			handler = defhandler
 		end -- if
 		if type(handler) ~= 'table' or type(handler[callback]) ~= 'function' or handler == self then
-			error(string.format("%s: '%shandler' - nil or function expected got %s", func, prefixtype(arg)), 3)
+			error(string.format("%s: '%shandler' - nil or function expected got %s", func, prefix, type(arg)), 3)
 		end -- if
 	else
-		error(string.format("%s: '%scallback' - %sfunction or string expected got %s", func, prefix, nonil and 'nil or ' or '',type(arg)), 3)
+		error(string.format("%s: '%scallback' - %sfunction or string expected got %s", func, prefix, nonil and 'nil or ' or '', type(arg)), 3)
 	end -- if
 
 	return callback, handler
