@@ -430,16 +430,19 @@ function lib:AskWhoNext()
 			DEFAULT_CHAT_FRAME:AddMessage(string.format(self.L['console_query'], args.query), 1, 1, 0)
 			
 		end
-		if(args.queue == self.WHOLIB_QUEUE_USER)then
+		
+		if args.queue == self.WHOLIB_QUEUE_USER then
 			WhoFrameEditBox:SetText(args.query)
-		end
-
-		if(args.queue == self.WHOLIB_QUEUE_QUIET or args.queue == self.WHOLIB_QUEUE_SCANNING)then
-			self.hooked.SetWhoToUI(1)
-			self.Quiet = true
-		else
 			self.Quiet = false
-			self.hooked.SetWhoToUI(args.gui and 1 or 0)
+	
+			if args.whotoui then
+    			self.hooked.SetWhoToUI(args.whotoui)
+    		else
+    			self.hooked.SetWhoToUI(args.gui and 1 or 0)
+			end
+		else
+			self.hooked.SetWhoToUI(1)
+			self.Quiet = true		
 		end
 
 		dbg("QUERY: "..args.query)
@@ -813,7 +816,7 @@ end -- if
 
 function lib.hook.SendWho(self, msg)
 	dbg("SendWho: "..msg)
-	lib.AskWho(self, {query = msg, queue = lib.WHOLIB_QUEUE_USER, flags = 0})
+	lib.AskWho(self, {query = msg, queue = lib.WHOLIB_QUEUE_USER, whotoui = lib.SetWhoToUIState, flags = 0})
 end
 
 function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
