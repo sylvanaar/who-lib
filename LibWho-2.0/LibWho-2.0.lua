@@ -813,7 +813,7 @@ end -- if
 
 function lib.hook.SendWho(self, msg)
 	dbg("SendWho: "..msg)
-	lib.AskWho(self, {query = msg, queue = lib.WHOLIB_QUEUE_QUIET, flags = 0})
+	lib.AskWho(self, {query = msg, queue = lib.WHOLIB_QUEUE_USER, flags = 0})
 end
 
 function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
