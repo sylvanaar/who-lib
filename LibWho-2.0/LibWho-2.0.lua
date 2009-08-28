@@ -469,6 +469,11 @@ function lib:AskWho(args)
 end
 
 function lib:ReturnWho()
+    if not self.Args then 
+        self.Quiet = nil 
+        return 
+    end
+
 	if(self.Args.queue == self.WHOLIB_QUEUE_QUIET or self.Args.queue == self.WHOLIB_QUEUE_SCANNING)then
 		self.Quiet = nil
 	end
