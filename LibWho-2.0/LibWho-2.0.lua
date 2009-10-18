@@ -83,7 +83,7 @@ lib.MaxInterval = 10
 --- locale
 ---
 
-if GetLocale() == ruRU then
+if (GetLocale() == "ruRU") then
 	lib.L = {
 		['console_queued'] = 'Добавлено в очередь "/who %s"',
 		['console_query'] = 'Результат "/who %s"',
