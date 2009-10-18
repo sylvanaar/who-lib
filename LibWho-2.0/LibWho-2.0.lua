@@ -213,7 +213,19 @@ function lib.UserInfo(defhandler, name, opts)
 		dbg('Info(' .. args.name ..') returned cause it\'s already searching')
 		return nil
 	end
+	if (GetLocale() == "ruRU") then -- in ruRU with n- not show information about player in WIM addon
     if args.name and args.name:len() > 0 then
+    	local query = 'и-"' .. args.name .. '"'
+    	cachedName.inqueue = true
+    	if(args.callback ~= nil)then
+    		tinsert(cachedName.callback, args)
+    	end
+    	self.CacheQueue[query] = args.name
+    	dbg('Info(' .. args.name ..') added to queue')
+    	self:AskWho( { query = query, queue = args.queue, flags = 0, info = args.name } )
+    end
+	else
+	    if args.name and args.name:len() > 0 then
     	local query = 'n-"' .. args.name .. '"'
     	cachedName.inqueue = true
     	if(args.callback ~= nil)then
@@ -223,6 +235,7 @@ function lib.UserInfo(defhandler, name, opts)
     	dbg('Info(' .. args.name ..') added to queue')
     	self:AskWho( { query = query, queue = args.queue, flags = 0, info = args.name } )
     end
+	end
 	return nil
 end
 
