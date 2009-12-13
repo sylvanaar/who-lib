@@ -170,6 +170,9 @@ function lib.UserInfo(defhandler, name, opts)
 	
     name = self:CheckArgument(usage, 'name', 'string', name)
     if name:len() == 0 then return end
+
+    if name:find("%-") then --[[dbg("ignoring xrealm: "..name)]] return end
+
 	args.name = self:CapitalizeInitial(name)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_quiet, opts.queue, self.WHOLIB_QUEUE_SCANNING)
