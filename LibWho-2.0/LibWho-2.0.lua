@@ -772,7 +772,7 @@ SLASH_WHOLIB_DEBUG1 = '/wholibdebug'
 local hooks = {
 	'SendWho',
 	'WhoFrameEditBox_OnEnterPressed',
-	'FriendsFrame_OnEvent',
+--	'FriendsFrame_OnEvent',
 	'SetWhoToUI',
 }
 
@@ -844,11 +844,14 @@ function lib.hook.WhoFrameEditBox_OnEnterPressed(self)
 	lib:GuiWho(WhoFrameEditBox:GetText())
 end
 
+--[[
 function lib.hook.FriendsFrame_OnEvent(self, ...)
 	if event ~= 'WHO_LIST_UPDATE' or not lib.Quiet then
 		lib.hooked.FriendsFrame_OnEvent(...)
 	end
 end
+]]
+
 
 function lib.hook.SetWhoToUI(self, state)
 	lib.SetWhoToUIState = state
@@ -870,11 +873,22 @@ local who_pattern = string.gsub(WHO_NUM_RESULTS, '%%d', '%%d%+')
 
 function lib:CHAT_MSG_SYSTEM(arg1)
 	if arg1 and arg1:find(who_pattern) then
-		self:WHO_LIST_UPDATE()
+		lib:ProcessWhoResults()
 	end
 end
 
+FriendsFrame:UnregisterEvent("WHO_LIST_UPDATE")
+
 function lib:WHO_LIST_UPDATE()
+    if not lib.Quiet then
+		WhoList_Update()		
+        FriendsFrame_Update()
+    end
+
+    lib:ProcessWhoResults()
+end
+
+function lib:ProcessWhoResults()
 	local num
 	self.Total, num = GetNumWhoResults()
 	for i=1, num do
@@ -884,7 +898,6 @@ function lib:WHO_LIST_UPDATE()
 	
 	self:ReturnWho()
 end
-
 
 ---
 --- event activation
