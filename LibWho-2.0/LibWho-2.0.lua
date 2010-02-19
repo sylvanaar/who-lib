@@ -852,6 +852,12 @@ function lib.hook.FriendsFrame_OnEvent(self, ...)
 end
 ]]
 
+hooksecurefunc(FriendsFrame, 'RegisterEvent', function(self, event)
+		if(event == "WHO_LIST_UPDATE") then
+			self:UnregisterEvent("WHO_LIST_UPDATE");
+		end
+	end);
+
 
 function lib.hook.SetWhoToUI(self, state)
 	lib.SetWhoToUIState = state
