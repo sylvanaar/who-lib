@@ -1,4 +1,4 @@
-﻿---
+---
 --- check for an already loaded old WhoLib
 ---
 
@@ -898,8 +898,8 @@ function lib:ProcessWhoResults()
 	local num
 	self.Total, num = GetNumWhoResults()
 	for i=1, num do
-		local charname, guildname, level, race, class, zone, nonlocalclass = GetWhoInfo(i)
-		self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone, NoLocaleClass=nonlocalclass }
+		local charname, guildname, level, race, class, zone, nonlocalclass, sex = GetWhoInfo(i)
+		self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone, NoLocaleClass=nonlocalclass, Sex=sex }
 	end
 	
 	self:ReturnWho()
