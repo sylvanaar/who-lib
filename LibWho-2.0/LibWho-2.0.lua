@@ -25,7 +25,8 @@ if not lib then
 	return	-- already loaded and no upgrade necessary
 end
 
-local callbacks = LibStub("CallbackHandler-1.0"):New(lib)
+lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
+local callbacks = lib.callbacks
 
 local am = {}
 local om = getmetatable(lib)
