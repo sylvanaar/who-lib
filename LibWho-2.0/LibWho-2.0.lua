@@ -504,7 +504,7 @@ function lib:ReturnWho()
 	dbg("RESULT: "..self.Args.query)
 	dbg('[' .. self.Args.queue .. '] returned "' .. self.Args.query .. '", total=' .. self.Total ..' , queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	local now = time()
-	local complete = self.Total == #self.Result
+	local complete = (self.Total == #self.Result) and (self.Total < MAX_WHOS_FROM_SERVER)
 	for _,v in pairs(self.Result)do
 		if(self.Cache[v.Name] == nil)then
 			self.Cache[v.Name] = { inqueue = false, callback = {} }
