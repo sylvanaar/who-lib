@@ -166,11 +166,12 @@ function lib.Who(defhandler, query, opts)
 end
 
 --Completed US Connections
+--Current as of Dec 23rd (Next expected update, Jan 3)
 local connectedUSRealms = {
 	[0] = "Aegwynn/Daggerspine/Gurubashi/Hakkar",
 	[1] = "Aggramar/Fizzcrank",
 	[2] = "Andorhal/Scilla/tUrsin",
-	[3] = "Anub’arak/Chromaggus/Garithos/Nathrezim/Smolderthorn",
+	[3] = "Crushridge/Anub’arak/Chromaggus/Garithos/Nathrezim/Smolderthorn",
 	[4] = "Arygos/Llane",
 	[5] = "Auchindoun/Laughing Skull",
 	[6] = "Azshara/Azgalor",
@@ -181,7 +182,7 @@ local connectedUSRealms = {
 	[11] = "Bloodscalp/Boulderfist/Dunemaul/Maiev/Stonemaul",
 	[12] = "Burning Blade/Lightning's Blade/and Onyxia",
 	[13] = "Cairne/Perenolde",
-	[14] = "Coilfang/Dark Iron/Dalvengyr",
+	[14] = "Demonsoul/Coilfang/Dark Iron/Dalvengyr",
 	[15] = "Dentarg/Whisperwind",
 	[16] = "Draenor/Echo Isles",
 	[17] = "Drak’Tharon/Firetree/Malorne/Rivendare/Spirestone",
@@ -189,11 +190,14 @@ local connectedUSRealms = {
 	[19] = "Hellscream/Zangarmarsh",
 	[20] = "Icecrown/Malygos",
 	[21] = "Kilrogg/Winterhoof",
-	[22] = "Magtheridon/Ysondre",
+	[22] = "Anetheron/Magtheridon/Ysondre",
 	[23] = "Nesingwary/Vek’nilash",
 	[24] = "Nordrassil/Muradin",
 	[25] = "Quel'dorei/Sen'jin",
 	[26] = "Tortheldrin/Frostmane",
+	[27] = "Darrowmere/Windrunner",
+	[28] = "Draka/Suramar",
+	[29] = "Velen/Eonar",
 }
 
 local function ignoreRealm(name)
