@@ -196,8 +196,8 @@ local connectedUSRealms = {
 	[26] = "Tortheldrin/Frostmane",
 }
 
-local playerRealm = GetRealmName("player")
 local function ignoreRealm(name)
+	local playerRealm = GetRealmName("player")
 	local shortName, realm = string.split("-", name)
 	for i = 0, #connectedUSRealms do
 		if connectedUSRealms[i]:find(playerRealm) and connectedUSRealms[i]:find(realm) then
