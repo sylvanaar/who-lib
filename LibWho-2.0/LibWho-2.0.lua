@@ -165,14 +165,57 @@ function lib.Who(defhandler, query, opts)
 	end
 end
 
+--Completed US Connections
+local connectedUSRealms = {
+	[0] = "Aegwynn/Daggerspine/Gurubashi/Hakkar",
+	[1] = "Aggramar/Fizzcrank",
+	[2] = "Andorhal/Scilla/tUrsin",
+	[3] = "Anub’arak/Chromaggus/Garithos/Nathrezim/Smolderthorn",
+	[4] = "Arygos/Llane",
+	[5] = "Auchindoun/Laughing Skull",
+	[6] = "Azshara/Azgalor",
+	[7] = "Balnazzar/Gorgonash/Warsong",
+	[8] = "Black Dragonflight/Gul'dan/Skullcrusher",
+	[9] = "Blackwing Lair/Dethecus/Detheroc/Lethon/Haomarush",
+	[10] = "Blood Furnace/Mannaroth",
+	[11] = "Bloodscalp/Boulderfist/Dunemaul/Maiev/Stonemaul",
+	[12] = "Burning Blade/Lightning's Blade/and Onyxia",
+	[13] = "Cairne/Perenolde",
+	[14] = "Coilfang/Dark Iron/Dalvengyr",
+	[15] = "Dentarg/Whisperwind",
+	[16] = "Draenor/Echo Isles",
+	[17] = "Drak’Tharon/Firetree/Malorne/Rivendare/Spirestone",
+	[18] = "Fenris/Dragonblight",
+	[19] = "Hellscream/Zangarmarsh",
+	[20] = "Icecrown/Malygos",
+	[21] = "Kilrogg/Winterhoof",
+	[22] = "Magtheridon/Ysondre",
+	[23] = "Nesingwary/Vek’nilash",
+	[24] = "Nordrassil/Muradin",
+	[25] = "Quel'dorei/Sen'jin",
+	[26] = "Tortheldrin/Frostmane",
+}
+
+local playerRealm = GetRealmName("player")
+local function ignoreRealm(name)
+	local shortName, realm = string.split("-", name)
+	for i = 0, #connectedUSRealms do
+		if connectedUSRealms[i]:find(playerRealm) and connectedUSRealms[i]:find(realm) then
+    		return false
+    	end
+    end
+    return true
+end
+
 function lib.UserInfo(defhandler, name, opts)
 	local self, args, usage = lib, {}, 'UserInfo(name, [opts])'
 	local now = time()
 	
     name = self:CheckArgument(usage, 'name', 'string', name)
     if name:len() == 0 then return end
-
-    if name:find("%-") then --[[dbg("ignoring xrealm: "..name)]] return end
+    
+    --There is no api to tell connected realms from cross realm. As such, we check known connections table before excluding who inquery on target
+    if name:find("%-") and ignoreRealm(name) then return end
 
 	args.name = self:CapitalizeInitial(name)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
