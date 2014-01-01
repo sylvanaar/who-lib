@@ -228,8 +228,15 @@ local connectedEURealms = {
 }
 
 local function ignoreRealm(name)
-	local playerRealm = GetRealmName("player")
 	local shortName, realm = string.split("-", name)
+ 	local connectedServers = GetAutoCompleteRealms()
+ 	if connectedServers then
+		for i = 1, #connectedServers do
+ 	 		if realm == connectedServers[i] then return false end
+		end
+ 	end
+ 	--Fallback if connectedServers did not work (maybe not needed? if so can remove a lot of stuff)
+	local playerRealm = GetRealmName("player")
 	local Realmlist  = GetCVar("realmList"):sub(1,2) == "us" and connectedUSRealms or connectedEURealms
 	for i = 0, #Realmlist do
 		if Realmlist[i]:find(playerRealm) and Realmlist[i]:find(realm) then
