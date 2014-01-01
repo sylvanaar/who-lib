@@ -200,11 +200,43 @@ local connectedUSRealms = {
 	[29] = "Velen/Eonar",
 }
 
+--Completed EU Connections
+--Current as of Dec 20th
+local connectedEURealms = {
+	[0] = "Thunderhorn/Wildhammer",
+	[1] = "Talnivarr/Shattered Halls/Chromaggus/Boulderfist/Daggerspine",
+	[2] = "Runetotem/Killrogg",
+	[3] = "Executus/Burning Steppes/Kor’gall",
+	[4] = "Agamaggan/Emeriss/Hakkar/Crushridge",
+	[5] = "The Venture Co/Sporeggar/Scarshield Legion",
+	[6] = "Aggra/Grim Batol",
+	[7] = "Lightning’s Blade/Karazhan",
+	[8] = "Throk’Feroth/Arak-arahm",
+	[9] = "Arathi/Temple Noir/Naxxramas",
+	[10] = "Ner’zhul/Garon",
+	[11] = "Nazjatar/Dalvengyr",
+	[12] = "Vek’lor/Arthas",
+	[13] = "Terrordar and Dethecus/Mug’thol/Theradras",
+	[14] = "Taerar/Echsenkessel",
+	[15] = "Alexstrasza/Nethersturm",
+	[16] = "Rajaxx/Anetheron",
+	[17] = "Area 52/Un’Goro",
+	[18] = "Das Syndikat/Die Arguswacht",
+	[19] = "Sanguino/Zul’jin/Shen'dralar/Uldum",
+	[20] = "Minahonda/Exodar",
+	[21] = "Разувий/Подземье",
+}
+
 local function ignoreRealm(name)
 	local playerRealm = GetRealmName("player")
 	local shortName, realm = string.split("-", name)
 	for i = 0, #connectedUSRealms do
 		if connectedUSRealms[i]:find(playerRealm) and connectedUSRealms[i]:find(realm) then
+    		return false
+    	end
+    end
+	for i = 0, #connectedEURealms do
+		if connectedEURealms[i]:find(playerRealm) and connectedEURealms[i]:find(realm) then
     		return false
     	end
     end
@@ -218,7 +250,8 @@ function lib.UserInfo(defhandler, name, opts)
     name = self:CheckArgument(usage, 'name', 'string', name)
     if name:len() == 0 then return end
     
-    --There is no api to tell connected realms from cross realm. As such, we check known connections table before excluding who inquery on target
+    --There is no api to tell connected realms from cross realm by name. As such, we check known connections table before excluding who inquiry
+    --UnitRealmRelationship and UnitIsSameServer don't work with "name". They require unitID so they are useless here
     if name:find("%-") and ignoreRealm(name) then return end
 
 	args.name = self:CapitalizeInitial(name)
