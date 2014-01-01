@@ -230,13 +230,9 @@ local connectedEURealms = {
 local function ignoreRealm(name)
 	local playerRealm = GetRealmName("player")
 	local shortName, realm = string.split("-", name)
-	for i = 0, #connectedUSRealms do
-		if connectedUSRealms[i]:find(playerRealm) and connectedUSRealms[i]:find(realm) then
-    		return false
-    	end
-    end
-	for i = 0, #connectedEURealms do
-		if connectedEURealms[i]:find(playerRealm) and connectedEURealms[i]:find(realm) then
+	local Realmlist  = GetCVar("realmList"):sub(1,2) == "us" and connectedUSRealms or connectedEURealms
+	for i = 0, #Realmlist do
+		if Realmlist[i]:find(playerRealm) and Realmlist[i]:find(realm) then
     		return false
     	end
     end
