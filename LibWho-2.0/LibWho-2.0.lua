@@ -645,7 +645,7 @@ function lib:ReturnWho()
 		end
 		dbg('Info(' .. name ..') returned: ' .. (cachedName.data.Online == false and 'off' or 'unkn'))
 		for _,v in pairs(cachedName.callback) do
-			self:RaiseCallback(v, self:ReturnUserInfo(v.Name))
+			self:RaiseCallback(v, self:ReturnUserInfo(name))
 		end
 		cachedName.callback = {}
 		self.CacheQueue[self.Args.query] = nil
