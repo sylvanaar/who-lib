@@ -165,84 +165,14 @@ function lib.Who(defhandler, query, opts)
 	end
 end
 
---Completed US Connections
---Current as of Dec 23rd (Next expected update, Jan 3)
-local connectedUSRealms = {
-	[0] = "Aegwynn/Daggerspine/Gurubashi/Hakkar",
-	[1] = "Aggramar/Fizzcrank",
-	[2] = "Andorhal/Scilla/tUrsin",
-	[3] = "Crushridge/Anub’arak/Chromaggus/Garithos/Nathrezim/Smolderthorn",
-	[4] = "Arygos/Llane",
-	[5] = "Auchindoun/Laughing Skull",
-	[6] = "Azshara/Azgalor",
-	[7] = "Balnazzar/Gorgonash/Warsong",
-	[8] = "Black Dragonflight/Gul'dan/Skullcrusher",
-	[9] = "Blackwing Lair/Dethecus/Detheroc/Lethon/Haomarush",
-	[10] = "Blood Furnace/Mannaroth",
-	[11] = "Bloodscalp/Boulderfist/Dunemaul/Maiev/Stonemaul",
-	[12] = "Burning Blade/Lightning's Blade/and Onyxia",
-	[13] = "Cairne/Perenolde",
-	[14] = "Demonsoul/Coilfang/Dark Iron/Dalvengyr",
-	[15] = "Dentarg/Whisperwind",
-	[16] = "Draenor/Echo Isles",
-	[17] = "Drak’Tharon/Firetree/Malorne/Rivendare/Spirestone",
-	[18] = "Fenris/Dragonblight",
-	[19] = "Hellscream/Zangarmarsh",
-	[20] = "Icecrown/Malygos",
-	[21] = "Kilrogg/Winterhoof",
-	[22] = "Anetheron/Magtheridon/Ysondre",
-	[23] = "Nesingwary/Vek’nilash",
-	[24] = "Nordrassil/Muradin",
-	[25] = "Quel'dorei/Sen'jin",
-	[26] = "Tortheldrin/Frostmane",
-	[27] = "Darrowmere/Windrunner",
-	[28] = "Draka/Suramar",
-	[29] = "Velen/Eonar",
-}
-
---Completed EU Connections
---Current as of Dec 20th
-local connectedEURealms = {
-	[0] = "Thunderhorn/Wildhammer",
-	[1] = "Talnivarr/Shattered Halls/Chromaggus/Boulderfist/Daggerspine",
-	[2] = "Runetotem/Killrogg",
-	[3] = "Executus/Burning Steppes/Kor’gall",
-	[4] = "Agamaggan/Emeriss/Hakkar/Crushridge",
-	[5] = "The Venture Co/Sporeggar/Scarshield Legion",
-	[6] = "Aggra/Grim Batol",
-	[7] = "Lightning’s Blade/Karazhan",
-	[8] = "Throk’Feroth/Arak-arahm",
-	[9] = "Arathi/Temple Noir/Naxxramas",
-	[10] = "Ner’zhul/Garon",
-	[11] = "Nazjatar/Dalvengyr",
-	[12] = "Vek’lor/Arthas",
-	[13] = "Terrordar and Dethecus/Mug’thol/Theradras",
-	[14] = "Taerar/Echsenkessel",
-	[15] = "Alexstrasza/Nethersturm",
-	[16] = "Rajaxx/Anetheron",
-	[17] = "Area 52/Un’Goro",
-	[18] = "Das Syndikat/Die Arguswacht",
-	[19] = "Sanguino/Zul’jin/Shen'dralar/Uldum",
-	[20] = "Minahonda/Exodar",
-	[21] = "Разувий/Подземье",
-}
-
 local function ignoreRealm(name)
-	local shortName, realm = string.split("-", name)
+	local _, realm = string.split("-", name)
  	local connectedServers = GetAutoCompleteRealms()
  	if connectedServers then
 		for i = 1, #connectedServers do
  	 		if realm == connectedServers[i] then return false end
 		end
  	end
- 	--Fallback if connectedServers did not work (maybe not needed? if so can remove a lot of stuff)
-	local playerRealm = GetRealmName("player")
-	local Realmlist  = GetCVar("realmList"):sub(1,2) == "us" and connectedUSRealms or connectedEURealms
-	for i = 0, #Realmlist do
-		if Realmlist[i]:find(playerRealm) and Realmlist[i]:find(realm) then
-    		return false
-    	end
-    end
     return true
 end
 
