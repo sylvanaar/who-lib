@@ -74,7 +74,7 @@ lib.Quiet = nil
 lib.Debug = false
 lib.Cache = {}
 lib.CacheQueue = {}
-lib.SetWhoToUIState = 0
+lib.SetWhoToUIState = false
 
 
 lib.MinInterval = 2.5
@@ -468,10 +468,10 @@ function lib:AskWhoNext()
 			if args.whotoui then
     			self.hooked.SetWhoToUI(args.whotoui)
     		else
-    			self.hooked.SetWhoToUI(args.gui and 1 or 0)
+    			self.hooked.SetWhoToUI(args.gui and true or false)
 			end
 		else
-			self.hooked.SetWhoToUI(1)
+			self.hooked.SetWhoToUI(true)
 			self.Quiet = true		
 		end
 
