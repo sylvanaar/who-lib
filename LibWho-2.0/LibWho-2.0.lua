@@ -150,7 +150,7 @@ function lib.Who(defhandler, query, opts)
 	args.query = self:CheckArgument(usage, 'query', 'string', query)
 	opts = self:CheckArgument(usage, 'opts', 'table', opts, {})
 	args.queue = self:CheckPreset(usage, 'opts.queue', queue_all, opts.queue, self.WHOLIB_QUEUE_SCANNING)
-	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', flags, 0)
+	args.flags = self:CheckArgument(usage, 'opts.flags', 'number', opts.flags, 0)
 	args.callback, args.handler = self:CheckCallback(usage, 'opts.', opts.callback, opts.handler, defhandler)	
 	-- now args - copied and verified from opts
 	
