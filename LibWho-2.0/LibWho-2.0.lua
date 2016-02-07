@@ -173,7 +173,7 @@ local function ignoreRealm(name)
  	 		if realm == connectedServers[i] then return false end
 		end
  	end
-    return true
+    return SelectedRealmName() ~= name
 end
 
 function lib.UserInfo(defhandler, name, opts)
