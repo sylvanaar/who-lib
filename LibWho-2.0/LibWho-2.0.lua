@@ -173,7 +173,7 @@ local function ignoreRealm(name)
  	 		if realm == connectedServers[i] then return false end
 		end
  	end
-    return SelectedRealmName() ~= name
+    return SelectedRealmName() ~= realm
 end
 
 function lib.UserInfo(defhandler, name, opts)
@@ -181,6 +181,7 @@ function lib.UserInfo(defhandler, name, opts)
 	local now = time()
 	
     name = self:CheckArgument(usage, 'name', 'string', name)
+--    name = Ambiguate(name, "None")
     if name:len() == 0 then return end
     
     --There is no api to tell connected realms from cross realm by name. As such, we check known connections table before excluding who inquiry
