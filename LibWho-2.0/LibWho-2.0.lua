@@ -1,4 +1,4 @@
----
+`---
 --- check for an already loaded old WhoLib
 ---
 
@@ -910,6 +910,8 @@ function lib:WHO_LIST_UPDATE()
 end
 
 function lib:ProcessWhoResults()
+	self.Result = self.Result and {}
+
 	local num
 	self.Total, num = GetNumWhoResults()
 	for i=1, num do
