@@ -1,8 +1,9 @@
 package-as: LibWho-2.0
 
-externals:
-    libs/LibStub:
-        url: https://repos.wowace.com/wow/libstub/trunk
-    libs/CallbackHandler-1.0:
-        url: https://repos.wowace.com/wow/callbackhandler/trunk
+enable-nolib-creation: yes
 
+externals:
+	libs/LibStub:
+		url: https://repos.wowace.com/wow/libstub/trunk
+	libs/CallbackHandler-1.0:
+		url: https://repos.wowace.com/wow/callbackhandler/trunk
