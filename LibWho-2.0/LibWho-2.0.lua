@@ -467,12 +467,12 @@ function lib:AskWhoNext()
 			self.Quiet = false
 	
 			if args.whotoui then
-    			self.hooked.SetWhoToUI(args.whotoui)
+    			self.hooked.SetWhoToUi(args.whotoui)
     		else
-    			self.hooked.SetWhoToUI(args.gui and true or false)
+    			self.hooked.SetWhoToUi(args.gui and true or false)
 			end
 		else
-			self.hooked.SetWhoToUI(true)
+			self.hooked.SetWhoToUi(true)
 			self.Quiet = true		
 		end
 
@@ -785,10 +785,8 @@ SLASH_WHOLIB_DEBUG1 = '/wholibdebug'
 
 -- functions to hook
 local hooks = {
-	'SendWho',
 	'WhoFrameEditBox_OnEnterPressed',
 --	'FriendsFrame_OnEvent',
-	'SetWhoToUI',
 }
 
 -- hook all functions (which are not yet hooked)
@@ -800,6 +798,24 @@ for _, name in pairs(hooks) do
 		end -- function
 	end -- if
 end -- for
+
+
+-- C_FriendList functions to hook
+local CFL_hooks = {
+	'SendWho',
+	'SetWhoToUi',
+}
+
+-- hook all C_FriendList functions (which are not yet hooked)
+for _, name in pairs(CFL_hooks) do
+	if not lib['hooked'][name] then
+		lib['hooked'][name] = _G["C_FriendList"][name]
+		_G["C_FriendList"][name] = function(...)
+			lib.hook[name](lib, ...)
+		end -- function
+	end -- if
+end -- for
+
 
 -- fake 'WhoFrame:Hide' as hooked
 table.insert(hooks, 'WhoFrame_Hide')
@@ -874,7 +890,7 @@ hooksecurefunc(FriendsFrame, 'RegisterEvent', function(self, event)
 	end);
 
 
-function lib.hook.SetWhoToUI(self, state)
+function lib.hook.SetWhoToUi(self, state)
 	lib.SetWhoToUIState = state
 end
 
