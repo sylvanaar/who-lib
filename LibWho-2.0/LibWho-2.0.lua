@@ -520,29 +520,29 @@ function lib:ReturnWho()
 	local now = time()
 	local complete = (self.Total == #self.Result) and (self.Total < MAX_WHOS_FROM_SERVER)
 	for _,v in pairs(self.Result)do
-		if(self.Cache[v.fullName] == nil)then
-			self.Cache[v.fullName] = { inqueue = false, callback = {} }
+		if(self.Cache[v.Name] == nil)then
+			self.Cache[v.Name] = { inqueue = false, callback = {} }
 		end
 		
-		local cachedName = self.Cache[v.fullName]
+		local cachedName = self.Cache[v.Name]
 		
 		cachedName.valid = true -- is now valid
 		cachedName.data = v -- update data
 		cachedName.data.Online = true -- player is online
 		cachedName.last = now -- update timestamp
 		if(cachedName.inqueue)then
-			if(self.Args.info and self.CacheQueue[self.Args.query] == v.fullName)then
+			if(self.Args.info and self.CacheQueue[self.Args.query] == v.Name)then
 				-- found by the query which was created to -> remove us from query
 				self.CacheQueue[self.Args.query] = nil
 			else
 				-- found by another query
 				for k2,v2 in pairs(self.CacheQueue) do
-					if(v2 == v.fullName)then
+					if(v2 == v.Name)then
 						for i=self.WHOLIB_QUEUE_QUIET, self.WHOLIB_QUEUE_SCANNING do
 							for k3,v3 in pairs(self.Queue[i]) do
 								if(v3.query == k2 and v3.info)then
 									-- remove the query which was generated for this user, cause another query was faster...
-									dbg("Found '"..v.fullName.."' early via query '"..self.Args.query.."'")
+									dbg("Found '"..v.Name.."' early via query '"..self.Args.query.."'")
 									table.remove(self.Queue[i], k3)
 									self.CacheQueue[k2] = nil
 								end
@@ -551,9 +551,9 @@ function lib:ReturnWho()
 					end
 				end
 			end
-			dbg('Info(' .. v.fullName ..') returned: on')
+			dbg('Info(' .. v.Name ..') returned: on')
 			for _,v2 in pairs(cachedName.callback) do
-				self:RaiseCallback(v2, self:ReturnUserInfo(v.fullName))
+				self:RaiseCallback(v2, self:ReturnUserInfo(v.Name))
 			end
 			cachedName.callback = {}
 		end
@@ -929,12 +929,11 @@ function lib:ProcessWhoResults()
 	self.Result = self.Result or {}
 
 	local num
-	self.Total, num = C_FriendList.GetNumWhoResults()	--GetNumWhoResults()
+	self.Total, num = C_FriendList.GetNumWhoResults()
 	for i=1, num do
-	--	local charname, guildname, level, race, class, zone, nonlocalclass, sex = GetWhoInfo(i)
-	--	self.Result[i] = {Name=charname, Guild=guildname, Level=level, Race=race, Class=class, Zone=zone, NoLocaleClass=nonlocalclass, Sex=sex }
+	--	self.Result[i] = C_FriendList.GetWhoInfo(i)
 		local info = C_FriendList.GetWhoInfo(i)
-		self.Result[i] = info
+		self.Result[i] = {Name=info.fullName, Guild=info.fullGuildName, Level=info.level, Race=info.raceStr, Class=info.classStr, Zone=info.area, NoLocaleClass=info.filename, Sex=info.gender }
 	end
 	
 	self:ReturnWho()
