@@ -982,10 +982,13 @@ end -- for
 --- Old deprecated functions as of 8.1/1.13
 ---
 
---[[
+local version, build, date, tocversion = GetBuildInfo()
+local isWoWClassic = tocversion >= 11302 and tocversion < 20000
+
+if isWoWClassic then
+
 -- Friend list API update
- 
-do
+
   -- Use C_FriendList.GetNumFriends and C_FriendList.GetNumOnlineFriends instead
   function GetNumFriends()
     return C_FriendList.GetNumFriends(),
@@ -1112,4 +1115,3 @@ do
   -- Use C_FriendList.SortWho instead
   SortWho = C_FriendList.SortWho;
 end
-]]
