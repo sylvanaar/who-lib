@@ -1,5 +1,11 @@
 package-as: LibWho-2.0
 
+enable-nolib-creation: no
+
 externals:
   libs/LibStub: https://repos.wowace.com/wow/libstub/trunk
   libs/CallbackHandler-1.0: https://repos.wowace.com/wow/callbackhandler/trunk/CallbackHandler-1.0
+
+ignore:
+  - libs/LibStub/tests
+  - libs/LibStub/LibStub.toc
