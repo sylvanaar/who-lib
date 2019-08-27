@@ -5,6 +5,7 @@
 # ## Interface: 11302
 #@end-non-retail@
 
+## X-Curse-Project-ID: 7529
 
 ## Title: Lib: LibWho-2.0
 ## Notes: Queing of /who and SendWho() queries and a much better interface (see docs), with gurantee to be executed & callback.
