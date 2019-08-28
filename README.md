@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/sylvanaar/who-lib.svg?branch=master)
+[![Build Status](https://travis-ci.org/sylvanaar/who-lib.svg?branch=master)](https://travis-ci.org/sylvanaar/who-lib)
 
 # LibWho-2.0
 
