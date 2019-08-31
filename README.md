@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/sylvanaar/who-lib.svg?branch=master)](https://travis-ci.org/sylvanaar/who-lib)
-
+![License](https://img.shields.io/github/license/sylvanaar/who-lib)
 # LibWho-2.0
 
 This documentation is for developers looking to utilize the World of Warcraft /who subsystem. The /who subsystem is a shared resource among all addons using it. By using this library, you will ensure that you do not conflict with other addons using the /who subsystem
