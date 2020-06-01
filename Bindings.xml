@@ -1,0 +1,5 @@
+<Bindings>
+    <Binding name="WHOLIB_TRIGGER_NEXT_WHO" header="WHOLIB" category="ADDONS">
+        LibStub('LibWho-2.0'):AskWhoNext()
+    </Binding>
+</Bindings>

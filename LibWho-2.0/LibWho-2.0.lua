@@ -25,6 +25,16 @@ if not lib then
 	return	-- already loaded and no upgrade necessary
 end
 
+-- todo: localizations
+
+BINDING_NAME_WHOLIB_TRIGGER_NEXT_WHO = 'Process the next entriy in the /who queue'
+BINDING_HEADER_WHOLIB = 'WhoLib'
+
+WorldFrame:HookScript("OnMouseDown", function(self,button)
+	lib:AskWhoNext()
+end)
+
+
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 local callbacks = lib.callbacks
 
@@ -336,13 +346,14 @@ end
 
 function lib:CancelPendingWhoNext()
 	lib['frame']:Hide()
+	lib.readyForNext = false
 end
 
 lib['frame']:SetScript("OnUpdate", function(frame, elapsed)
 	lib.Timeout_time = lib.Timeout_time - elapsed
 	if lib.Timeout_time <= 0 then
 		lib['frame']:Hide()
-		lib:AskWhoNext()
+		lib.readyForNext = true
 	end -- if
 end);
 
@@ -407,11 +418,11 @@ end
 lib.queue_bounds = queue_bounds
 
 function lib:AskWhoNext()
-	if lib.frame:IsShown() then 
-		dbg("Already waiting")
+	if lib.frame:IsShown() or not self.readyForNext then
+		dbg("Already waiting or not processing")
 		return 
 	end
-
+	self.readyForNext = false
 	self:CancelPendingWhoNext()
 
 	if self.WhoInProgress then
@@ -495,8 +506,8 @@ function lib:AskWho(args)
 	tinsert(self.Queue[args.queue], args)
 	dbg('[' .. args.queue .. '] added "' .. args.query .. '", queues=' .. #self.Queue[1] .. '/'.. #self.Queue[2] .. '/'.. #self.Queue[3])
 	self:TriggerEvent('WHOLIB_QUERY_ADDED')
-	
-	self:AskWhoNext()
+
+	self.readyForNext = true
 end
 
 function lib:ReturnWho()
