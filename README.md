@@ -11,6 +11,10 @@ This library provides the following:
 * Queuing of /who and SendWho()
 * A much better who interface, with guarantee to be executed & callback
 
+Since SendWho() is protected, you should trigger the queue from a keybind or mouse-click. Call the following
+
+    LibStub('LibWho-2.0'):AskWhoNext()
+
 ## Usage
 There are two ways of using WhoLib: embedding into an object or using the library directly
 
