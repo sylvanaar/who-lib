@@ -26,15 +26,6 @@ if not lib then
 end
 
 -- todo: localizations
-
-BINDING_NAME_WHOLIB_TRIGGER_NEXT_WHO = 'Process the next entriy in the /who queue'
-BINDING_HEADER_WHOLIB = 'WhoLib'
-
-WorldFrame:HookScript("OnMouseDown", function(self,button)
-	lib:AskWhoNext()
-end)
-
-
 lib.callbacks = lib.callbacks or LibStub("CallbackHandler-1.0"):New(lib)
 local callbacks = lib.callbacks
 
